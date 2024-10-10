@@ -19,4 +19,4 @@ end:
     rts                    ; Return from subroutine
 
 message:
-    .byte "H", "e", "l", "l", "o", ",", " ", "W", "o", "r", "l", "d", "!", 0	
+    .byte {{ "HELLO WORLD!" | screencode }},0
