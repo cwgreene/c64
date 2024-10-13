@@ -23,34 +23,34 @@ add:
     sbc 0x1100
     bmi b_bigger
     a_bigger:
-        ldx 0x1000
+        ldy 0x1000
         jmp _done
     b_bigger:
-        ldx 0x1100
+        ldy 0x1100
     _done:
-    stx 0x1200
-    ldy #$1 ; 1 because first byte is size
+    sty 0x1200
+    ldx #$1 ; 1 because first byte is size
     add_loop:
         ; X and Y are the offsets
-        lda 0x1000,Y
+        lda 0x1000,X
         bcc _carry ; Branch on Carry Clear
         carry:
             clc
             adc 1 ; may set overflow
         _carry:        
-        adc 0x1100,Y ; may set overflow flag
-        sta 0x1200,Y
-        iny
-        dex
+        adc 0x1100,X ; may set overflow flag
+        sta 0x1200,X
+        inx
+        dey
         bne add_loop
     bcc _no_carry
     
     ; final carry
-    ldx 0x1200
-    inx
-    stx 0x1200
+    ldy 0x1200
+    iny
+    sty 0x1200
     lda #$1
-    sta 0x1200,Y
+    sta 0x1200,X
     _no_carry:
     rts
     
