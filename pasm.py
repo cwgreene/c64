@@ -1,5 +1,6 @@
 import jinja2
 import argparse
+import re
 
 env = jinja2.Environment()
 
@@ -42,5 +43,12 @@ def main():
     options = parser.parse_args()
     env.filters["petscii"]
     template = env.from_string(open(options.filename).read())
-    print(template.render())
+    macro_subbed = template.render()
+
+    lines = []
+    for line in macro_subbed.split("\n"):
+       if re.match("^ *[^ #]*:", line):
+            line = line.lstrip() 
+       lines.append(line)
+    print("\n".join(lines))
 main()

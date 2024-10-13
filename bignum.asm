@@ -22,22 +22,22 @@ add:
     lda 0x1000
     sbc 0x1100
     bmi b_bigger
-a_bigger:
+    a_bigger:
         ldy 0x1000
         jmp _done
-b_bigger:
+    b_bigger:
         ldy 0x1100
-_done:
+    _done:
     sty 0x1200
     ldx #$1 ; 1 because first byte is size
-add_loop:
+    add_loop:
         ; X and Y are the offsets
         lda 0x1000,X
         bcc _carry ; Branch on Carry Clear
-carry:
+        carry:
             clc
             adc 1 ; may set overflow
-_carry:        
+        _carry:        
         adc 0x1100,X ; may set overflow flag
         sta 0x1200,X
         inx
@@ -51,7 +51,7 @@ _carry:
     sty 0x1200
     lda #$1
     sta 0x1200,X
-_no_carry:
+    _no_carry:
     rts
     
 message:
