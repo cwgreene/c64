@@ -2,3 +2,4 @@
 *_2.asm
 *.prg
 *.sym
+__pycache__
