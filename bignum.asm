@@ -36,7 +36,8 @@ add:
         bcc _carry ; Branch on Carry Clear
         carry:
             clc
-            adc 1 ; may set overflow
+            adc #$1 ; may set overflow, which will stick around after
+                  ; the next adc
         _carry:        
         adc 0x1100,Y ; may set overflow flag
         sta 0x1200,Y
@@ -52,6 +53,7 @@ add:
     lda #$1
     sta 0x1200,Y
     _no_carry:
+add_end:
     rts
     
 message:
