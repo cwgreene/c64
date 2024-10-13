@@ -8,7 +8,7 @@
 
     ; Set up screen memory location and text
     ldx #0                 ; Start index at 0
-    rts
+    jmp add
 
 ; we're going to use 0x1000 for a,b,c
 loadbig_a:
@@ -40,19 +40,19 @@ carry:
 _carry:        
         adc 0x1100,X ; may set overflow flag
         sta 0x1200,X
+        inx
         dey
         bne add_loop
     bcc _no_carry
     
-    ; carry
+    ; final carry
     ldy 0x1200
     iny
     sty 0x1200
+    lda #$1
+    sta 0x1200,X
 _no_carry:
     rts
     
-end:
-    rts                    ; Return from subroutine
-
 message:
     .byte {{ "HELLO WORLD!" | screencode }},0
