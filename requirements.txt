@@ -1,2 +1,3 @@
 git+https://github.com/docmarionum1/py65emu
 pytest
+jinja2

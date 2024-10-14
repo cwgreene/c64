@@ -23,10 +23,18 @@ def load_syms(symfile):
         syms_dict[sym] = int(address,16)
     return syms_dict
 
+def invert_syms(syms):
+    isyms = {}  
+    for s in syms:
+        addr = syms[s]
+        isyms[addr] = isyms.get(addr, []) + [s]
+    return isyms
+
 def create_add():
     # load program
     f = open("bignum.prg", "rb").read()
     syms = load_syms("bignum.sym")
+    isyms = invert_syms(syms)
     mmu = MMU([
         (0x0,0x2000, False)
     ])
@@ -55,7 +63,11 @@ def create_add():
         # simulate
         while cpu.r.pc != syms["add_end"]:
             op = mmu.read(cpu.r.pc)
-            #print(hex(cpu.r.pc), hex(op), cpu.ops[op].args[1].__name__, cpu.r.a, cpu.r.x, cpu.r.y, bin(cpu.r.p))
+            # WARNING: Debug info will slow down all 1 byte tests.
+            #if cpu.r.pc in isyms:
+            #    print(isyms[cpu.r.pc],end=":")
+            #print(hex(cpu.r.pc), hex(op), cpu.ops[op].args[1].__name__, cpu.r.a, cpu.r.x, cpu.r.y, bin(cpu.r.p), end=" ")
+            #print("|", mmu.read(0x1000+cpu.r.y), mmu.read(0x1100+cpu.r.y))
             cpu.step()
 
         # read out

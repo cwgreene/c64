@@ -33,12 +33,6 @@ add:
     add_loop:
         ; X and Y are the offsets
         lda 0x1000,Y
-        bcc _carry ; Branch on Carry Clear
-        carry:
-            clc
-            adc #$1 ; may set carry, which will stick around after
-                  ; the next adc
-        _carry:        
         adc 0x1100,Y ; may set carry flag
         sta 0x1200,Y
         iny
