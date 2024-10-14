@@ -102,3 +102,11 @@ def test_large_add():
         a = random.getrandbits(24)
         b = random.getrandbits(24)
         assert call_add(a,b) == a+b
+
+def test_larger_add():
+    call_add = create_add()
+    random.seed(0x1337)
+    for i in range(128):
+        a = random.getrandbits(128*8)
+        b = random.getrandbits(128*8)
+        assert call_add(a,b) == a+b
