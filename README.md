@@ -9,5 +9,5 @@ make bignum.d64
 python -m venv .venv
 ./.venv/bin/activate
 pip install -r requirements.txt
-python -m pytest
+python -m pytest -v
 ```
