@@ -3,3 +3,4 @@
 *.prg
 *.sym
 __pycache__
+.venv
