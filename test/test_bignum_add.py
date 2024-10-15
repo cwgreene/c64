@@ -44,7 +44,7 @@ def create_add():
 
     def call_add(a,b):
         # set address
-        cpu.r.pc = 0x818
+        cpu.r.pc = syms["add"]
 
         a = mknum(a)
         b = mknum(b)
@@ -53,7 +53,12 @@ def create_add():
         a += [0]*max(len(b)-len(a),0)
         b += [0]*max(len(a)-len(b),0)
         print(a,b)
-        # Write a and b
+        # Write *a, *b, *c
+        mmu.write(0x11,0x10)
+        mmu.write(0x13,0x11)
+        mmu.write(0x15,0x12)
+
+        # write a, b
         mmu.write(0x1000, len(a))
         mmu.write(0x1100, len(b))
         for i,(a_digit,b_digit) in enumerate(zip(a,b)):
@@ -67,7 +72,7 @@ def create_add():
             #if cpu.r.pc in isyms:
             #    print(isyms[cpu.r.pc],end=":")
             #print(hex(cpu.r.pc), hex(op), cpu.ops[op].args[1].__name__, cpu.r.a, cpu.r.x, cpu.r.y, bin(cpu.r.p), end=" ")
-            #print("|", mmu.read(0x1000+cpu.r.y), mmu.read(0x1100+cpu.r.y))
+            #print("|", mmu.read(mmu.read(0x11)*256+cpu.r.y), mmu.read(mmu.read(0x13)*256+cpu.r.y))
             cpu.step()
 
         # read out

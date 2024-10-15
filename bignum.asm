@@ -16,39 +16,74 @@ loadbig_a:
     ; and then copy them to 0x1000, 0x1100. Addition routines
 loadbig_b:
 
+; @func add
+; Input:
+;  0x10 *a
+;  0x12 *b
+; Output:
+;  0x14 *c
 add:
     clc     ; clear carry
     ; read length
-    lda 0x1000
-    sbc 0x1100
+    ldy #$0
+    lda ($10),Y
+    sbc ($12),Y
     bmi b_bigger
     a_bigger:
-        ldx 0x1000
+        lda ($10),Y
+        tax
         jmp _done
     b_bigger:
-        ldx 0x1100
+        lda ($12),Y
+        tax
     _done:
-    stx 0x1200
+    sta ($14),Y
+    tay
     ldy #$1 ; 1 because first byte is size
     add_loop:
         ; X and Y are the offsets
-        lda 0x1000,Y
-        adc 0x1100,Y ; may set carry flag
-        sta 0x1200,Y
+        lda ($10),Y
+        adc ($12),Y ; may set carry flag
+        sta ($14),Y
         iny
         dex
         bne add_loop
     bcc _no_carry
     
     ; final carry
-    ldx 0x1200
-    inx
-    stx 0x1200
+    clc
+    ; attach 1 to end
     lda #$1
-    sta 0x1200,Y
+    sta ($14),Y
+
+    ; increment length
+    ldy #$0
+    lda ($14),Y
+    adc #$1
+    sta ($14),Y
     _no_carry:
 add_end:
     rts
+
+;mul:
+;   clc
+;   dbl = 0x1300 <- a
+;   rem = 0x1400 <- b
+;   acc = 0x1500
+;   mul_loop:
+;       lda 0x1
+;       and 0x1400
+;       bcc odd
+;       even:
+;           jsr long_shift_left 0x1400
+;           jsr long_shift_right 0x1300
+;       odd:
+;           jsr add acc dbl
+;           jsr copy result -> acc; needed?
+;           lda #$1
+;           and 0x1401
+;           sta somewhere?
+;       bne mul_loop
 
 message:
     .byte {{ "HELLO WORLD!" | screencode }},0

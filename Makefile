@@ -7,6 +7,6 @@
 
 %.d64: %.asm
 	python3 pasm.py $< > $*_2.asm
-	dasm $*_2.asm -o$*.prg -s$*.sym
+	dasm $*_2.asm -o$*.prg -s$*.sym -l$*.lst
 	c1541 -format "1234,01" d64 $*.d64
 	c1541 $*.d64 -write $*.prg "1234"	
