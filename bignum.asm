@@ -114,15 +114,11 @@ add_end:
 ;       and 0x1400
 ;       bcc odd
 ;       even:
-;           jsr long_shift_left 0x1400
-;           jsr long_shift_right 0x1300
+;           jsr add 0x1300 0x1300 0x1300
+;           jsr long_shift_right 0x1400
 ;       odd:
-;           jsr add acc dbl
-;           jsr copy result -> acc; needed?
+;           jsr add acc dbl acc
 ;           lda #$1
 ;           and 0x1401
-;           sta somewhere?
+;           sta 0x1401
 ;       bne mul_loop
-
-message:
-    .byte {{ "HELLO WORLD!" | screencode }},0
