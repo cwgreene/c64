@@ -67,15 +67,15 @@ add:
     ldy #$0
     lda ($10),Y
     sbc ($12),Y
-    bmi b_bigger
-    a_bigger:
+    bmi add_b_bigger
+    add_a_bigger:
         lda ($10),Y
         tax
-        jmp _done
-    b_bigger:
+        jmp add_done
+    add_b_bigger:
         lda ($12),Y
         tax
-    _done:
+    add_done:
     sta ($14),Y
     tay
     ldy #$1 ; 1 because first byte is size
@@ -87,7 +87,7 @@ add:
         iny
         dex
         bne add_loop
-    bcc _no_carry
+    bcc add_no_carry
     
     ; final carry
     clc
@@ -100,7 +100,7 @@ add:
     lda ($14),Y
     adc #$1
     sta ($14),Y
-    _no_carry:
+    add_no_carry:
 add_end:
     rts
 
