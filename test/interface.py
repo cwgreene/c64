@@ -29,13 +29,13 @@ def invert_syms(syms):
         isyms[addr] = isyms.get(addr, []) + [s]
     return isyms
 
-def create_add():
+def create_environment():
     # load program
     f = open("bignum.prg", "rb").read()
     syms = load_syms("bignum.sym")
     isyms = invert_syms(syms)
     mmu = MMU([
-        (0x0,0x2000, False)
+        (0x0,0x3000, False)
     ])
     for i,by in enumerate(f[2:]):
         mmu.write(0x801+i, by)
@@ -85,5 +85,46 @@ def create_add():
             acc += mmu.read(mc+i+1)*256**i
         print(c)
         return acc
-    return call_add
 
+    def call_lsr(a, ma=0x2000):
+        # set address
+        cpu.r.pc = syms["long_shift_right"]
+
+        # Write *a
+        for i, m in enumerate([ma]):
+            mmu.write(0x20+2*i,m % 256)
+            mmu.write(0x20+2*i+1,m >> 8)
+        a = mknum(a)
+
+        # write a
+        mmu.write(ma, len(a))
+        for i,a_digit in enumerate(a):
+            mmu.write(ma+i+1,a_digit)
+
+        # simulate
+        while cpu.r.pc != syms["long_shift_right_end"]:
+            op = mmu.read(cpu.r.pc)
+            # WARNING: Debug info will slow down all 1 byte tests.
+            #if cpu.r.pc in isyms:
+            #    print(isyms[cpu.r.pc],end=":")
+            #print(hex(cpu.r.pc), hex(op), cpu.ops[op].args[1].__name__, cpu.r.a, cpu.r.x, cpu.r.y, bin(cpu.r.p), end=" ")
+            #print("|", mmu.read(mmu.read(0x11)*256+cpu.r.y), mmu.read(mmu.read(0x13)*256+cpu.r.y))
+            cpu.step()
+
+        # read out
+        acc = 0
+        length = mmu.read(ma)
+
+        c = []
+        for i in range(length):
+            #print("digit", mmu.read(0x1200+i+1))
+            c.append(mmu.read(ma+i+1))
+            acc += mmu.read(ma+i+1)*256**i
+        print(c)
+        return acc
+    return {"add":call_add, "long_shift_right": call_lsr}
+
+env = create_environment()
+print(env)
+call_add = env["add"]
+call_long_shift_right = env["long_shift_right"]

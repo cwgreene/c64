@@ -29,26 +29,30 @@ long_shift_right:
     iny
 
     ; initial shift
-    lda ($20), Y
-    lsr A
+    lda ($20),Y
+    lsr
+    sta ($20),Y
 
     iny
     dex
     beq lsr_end
     lsr_loop:
         lda ($20),Y
-        lsr A
+        lsr
+        sta ($20),Y
         bcc lsr_next
         lsr_increment_carry:
             dey
             lda ($20),Y
             ORA 0x80
+            sta ($20),Y
             iny
         lsr_next:
         iny
         dex
-        bne loop
+        bne lsr_loop
     lsr_end:
+    long_shift_right_end:
     rts
 
 ; @func add
