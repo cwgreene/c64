@@ -16,6 +16,41 @@ loadbig_a:
     ; and then copy them to 0x1000, 0x1100. Addition routines
 loadbig_b:
 
+; @func long_shift_right
+; Input:
+;  0x20 *a
+; Output:
+;  0x20 *a
+long_shift_right:
+    ldy #$0
+    ; get length
+    lda ($20),Y
+    tax
+    iny
+
+    ; initial shift
+    lda ($20), Y
+    lsr A
+
+    iny
+    dex
+    beq lsr_end
+    lsr_loop:
+        lda ($20),Y
+        lsr A
+        bcc lsr_next
+        lsr_increment_carry:
+            dey
+            lda ($20),Y
+            ORA 0x80
+            iny
+        lsr_next:
+        iny
+        dex
+        bne loop
+    lsr_end:
+    rts
+
 ; @func add
 ; Input:
 ;  0x10 *a

@@ -4,3 +4,4 @@
 *.sym
 __pycache__
 .venv
+*.lst
