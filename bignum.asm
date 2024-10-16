@@ -104,21 +104,34 @@ add:
 add_end:
     rts
 
+; @func mul
+; Input:
+;  0x30 *a - destructive!
+;  0x32 *b - destructive!
+; Output:
+;  0x34 *c
 ;mul:
 ;   clc
-;   dbl = 0x1300 <- a
-;   rem = 0x1400 <- b
-;   acc = 0x1500
+;   dbl = 0x30 <- a
+;   rem = 0x32 <- b
+;   acc = 0x34 -> c
 ;   mul_loop:
+;       ; check if rem is even
+;       ldy 0x1
 ;       lda 0x1
-;       and 0x1400
+;       and (0x32),Y
 ;       bcc odd
 ;       even:
-;           jsr add 0x1300 0x1300 0x1300
-;           jsr long_shift_right 0x1400
+;           ; dbl += dbl
+;           jsr add *0x30 *0x30 *0x30
+;           ; rem >> 1
+;           jsr long_shift_right *0x32
 ;       odd:
+;           ; acc += dbl
 ;           jsr add acc dbl acc
+;           ; rem -= 1
 ;           lda #$1
-;           and 0x1401
-;           sta 0x1401
+;           ldy #$1
+;           and (0x32),Y
+;           sta (0x32),Y
 ;       bne mul_loop
