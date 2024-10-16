@@ -42,7 +42,7 @@ def create_add():
         mmu.write(0x801+i, by)
     cpu = CPU(mmu, syms["add"])
 
-    def call_add(a,b):
+    def call_add(a,b, ma=0x1000, mb=0x1100, mc=1200):
         # set address
         cpu.r.pc = syms["add"]
 
@@ -54,16 +54,16 @@ def create_add():
         b += [0]*max(len(a)-len(b),0)
         print(a,b)
         # Write *a, *b, *c
-        mmu.write(0x11,0x10)
-        mmu.write(0x13,0x11)
-        mmu.write(0x15,0x12)
+        for i, m in enumerate([ma,mb,mc]):
+            mmu.write(0x10+2*i,m % 256)
+            mmu.write(0x10+2*i+1,m >> 8)
 
         # write a, b
-        mmu.write(0x1000, len(a))
-        mmu.write(0x1100, len(b))
+        mmu.write(ma, len(a))
+        mmu.write(mb, len(b))
         for i,(a_digit,b_digit) in enumerate(zip(a,b)):
-            mmu.write(0x1000+i+1,a_digit)
-            mmu.write(0x1100+i+1,b_digit)
+            mmu.write(ma+i+1,a_digit)
+            mmu.write(mb+i+1,b_digit)
 
         # simulate
         while cpu.r.pc != syms["add_end"]:
@@ -77,13 +77,13 @@ def create_add():
 
         # read out
         acc = 0
-        length = mmu.read(0x1200)
+        length = mmu.read(mc)
 
         c = []
         for i in range(length):
             #print("digit", mmu.read(0x1200+i+1))
-            c.append(mmu.read(0x1200+i+1))
-            acc += mmu.read(0x1200+i+1)*256**i
+            c.append(mmu.read(mc+i+1))
+            acc += mmu.read(mc+i+1)*256**i
         print(c)
         return acc
     return call_add
@@ -99,6 +99,17 @@ def test_middle_carry():
     a = 128+255*256+100*256**2
     b = 128+0*256+100*256**2
     assert call_add(a,b) == a+b
+
+def test_a_equals_b():
+    call_add = create_add()
+    a = 7124
+    assert call_add(a,a,ma=0x1000,mb=0x1000,mc=0x1100) == a+a
+
+def test_self_add():
+    call_add = create_add()
+    for i in range(128):
+        a = random.getrandbits(128*8)
+    assert call_add(a,a,ma=0x1000,mb=0x1000,mc=0x1000) == a+a
 
 def test_large_add():
     call_add = create_add()
