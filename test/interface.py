@@ -65,6 +65,7 @@ def create_environment():
             mmu.write(mb+i+1,b_digit)
 
         # simulate
+        steps = 0
         while cpu.r.pc != syms["add_end"]:
             op = mmu.read(cpu.r.pc)
             # WARNING: Debug info will slow down all 1 byte tests.
@@ -73,7 +74,8 @@ def create_environment():
             #print(hex(cpu.r.pc), hex(op), cpu.ops[op].args[1].__name__, cpu.r.a, cpu.r.x, cpu.r.y, bin(cpu.r.p), end=" ")
             #print("|", mmu.read(mmu.read(0x11)*256+cpu.r.y), mmu.read(mmu.read(0x13)*256+cpu.r.y))
             cpu.step()
-
+            steps += 1
+        print("steps", steps)
         # read out
         acc = 0
         length = mmu.read(mc)
@@ -102,15 +104,17 @@ def create_environment():
             mmu.write(ma+i+1,a_digit)
 
         # simulate
+        steps = 1
         while cpu.r.pc != syms["long_shift_right_end"]:
             op = mmu.read(cpu.r.pc)
             # WARNING: Debug info will slow down all 1 byte tests.
             #if cpu.r.pc in isyms:
             #    print(isyms[cpu.r.pc],end=":")
             #print(hex(cpu.r.pc), hex(op), cpu.ops[op].args[1].__name__, cpu.r.a, cpu.r.x, cpu.r.y, bin(cpu.r.p), end=" ")
-            #print("|", mmu.read(mmu.read(0x11)*256+cpu.r.y), mmu.read(mmu.read(0x13)*256+cpu.r.y))
+            #print("|", mmu.read(mmu.read(0x11)*256+cpu.r.y), mmu.read(mmu.read(0x13)*256+cpu.r.y)) 
+            steps += 1
             cpu.step()
-
+        print("steps", steps)
         # read out
         acc = 0
         length = mmu.read(ma)
