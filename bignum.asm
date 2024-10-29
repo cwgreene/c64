@@ -110,28 +110,58 @@ add_end:
 ;  0x32 *b - destructive!
 ; Output:
 ;  0x34 *c
-;mul:
-;   clc
-;   dbl = 0x30 <- a
-;   rem = 0x32 <- b
-;   acc = 0x34 -> c
-;   mul_loop:
-;       ; check if rem is even
-;       ldy 0x1
-;       lda 0x1
-;       and (0x32),Y
-;       bcc odd
-;       even:
-;           ; dbl += dbl
-;           jsr add *0x30 *0x30 *0x30
-;           ; rem >> 1
-;           jsr long_shift_right *0x32
-;       odd:
-;           ; acc += dbl
-;           jsr add acc dbl acc
-;           ; rem -= 1
-;           lda #$1
-;           ldy #$1
-;           and (0x32),Y
-;           sta (0x32),Y
-;       bne mul_loop
+mul:
+    clc
+;    dbl = 0x30 <- a
+;    rem = 0x32 <- b
+;    acc = 0x34 -> c
+    .mul_loop:
+        ; check if rem is even
+        ldy #$1
+        lda #$1
+        and (0x32),Y
+        bcc .odd
+        .even:
+            ; dbl += dbl
+            ; $30 -> #10
+            ; jsr add acc acc -> acc
+            lda $30 ; acc
+            ldx $31
+            sta $10 ; add.1 <- acc
+            stx $11
+
+            sta $12 ; add.2 <- acc
+            stx $13
+
+            sta $14 ; add.3 <- acc
+            stx $15
+
+            jsr add
+            ; rem >> 1
+            lda $32 ; rem
+            ldx $33
+            sta $20 ; lsr.1 <- rem
+            stx $21
+            jsr long_shift_right
+        .odd:
+            ; acc += dbl
+            ;jsr add (acc dbl) -> acc
+            lda $30 ; acc
+            ldx $31
+            sta $10 ; add.1 <- acc
+            stx $11
+            sta $14 ; add.out <- acc
+            stx $15
+            lda $32 ; dbl
+            ldx $33
+            sta $12 ; add.2 <- dbl
+            stx $13
+            
+            ; rem -= 1
+            lda #$1
+            ldy #$1
+            and (0x32),Y
+            sta (0x32),Y
+        bne mul_loop
+mul_end:
+    rts
