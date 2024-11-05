@@ -16,6 +16,24 @@ loadbig_a:
     ; and then copy them to 0x1000, 0x1100. Addition routines
 loadbig_b:
 
+; @func is_zero
+; Input:
+; 0x40 *a
+is_zero:
+    ldy #$0
+    lda ($40),Y
+    tax
+    iny
+    .is_zero_loop:
+        lda ($40),Y
+        ora #$0 ; not zero resets zero flag
+        bne .ret ; return if not zero
+        iny
+        dex ; will set zero flag if we reach end
+        bne .is_zero_loop
+    .ret:
+    rts
+
 ; @func long_shift_right
 ; Input:
 ;  0x20 *a
@@ -115,25 +133,33 @@ mul:
 ;    dbl = 0x30 <- a
 ;    rem = 0x32 <- b
 ;    acc = 0x34 -> c
+    ; set up is_zero to point to remainder
+    lda $0032
+    sta $0040
+    lda $0033
+    sta $0041
+
     .mul_loop:
+        jsr is_zero
+        beq mul_end
         ; check if rem is even
         ldy #$1
         lda #$1
         and (0x32),Y
-        bcc .odd
+        bne .odd
         .even:
             ; dbl += dbl
             ; $30 -> #10
-            ; jsr add acc acc -> acc
-            lda $30 ; acc
+            ; jsr add dbl dbl -> dbl
+            lda $30 ; dbl
             ldx $31
-            sta $10 ; add.1 <- acc
+            sta $10 ; add.1 <- dbl
             stx $11
 
-            sta $12 ; add.2 <- acc
+            sta $12 ; add.2 <- dbl
             stx $13
 
-            sta $14 ; add.3 <- acc
+            sta $14 ; add.3 <- dbl
             stx $15
 
             jsr add
@@ -146,22 +172,23 @@ mul:
         .odd:
             ; acc += dbl
             ;jsr add (acc dbl) -> acc
-            lda $30 ; acc
-            ldx $31
+            lda $34 ; acc
+            ldx $35
             sta $10 ; add.1 <- acc
             stx $11
             sta $14 ; add.out <- acc
             stx $15
-            lda $32 ; dbl
-            ldx $33
+            lda $30 ; dbl
+            ldx $31
             sta $12 ; add.2 <- dbl
             stx $13
+            jsr add
             
             ; rem -= 1
-            lda #$1
+            lda #$0
             ldy #$1
             and (0x32),Y
             sta (0x32),Y
-        bne mul_loop
+        jmp .mul_loop
 mul_end:
     rts
