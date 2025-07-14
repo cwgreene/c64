@@ -19,6 +19,9 @@ def test_a_equals_b():
     a = 7124
     assert call_mul(a,a,ma=0x1000,mb=0x1000,mc=0x1100) == a*a
 
+# Do we want to *not* do this?
+# or do we rely on self mul for squaring?
+# I am tending towards making it the caller's responsibility.
 def test_self_mul():
     for i in range(128):
         a = random.getrandbits(128*8)
