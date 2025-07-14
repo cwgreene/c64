@@ -9,7 +9,6 @@ def mknum(a):
         arr.append(a%256)
         a //= 256
     return arr
-
 def load_syms(symfile):
     syms = open(symfile).read()
     syms_dict = {}
@@ -127,7 +126,7 @@ def create_environment():
         print(c)
         return acc
     
-    def call_mul(a,b, ma=0x1000, mb=0x1100, mc=0x1200):
+    def call_mul(a,b, ma=0x1000, mb=0x1100, mdbl=0x1200, mc=0x1300):
         # set address
         mul_start = 0x30
         cpu.r.pc = syms["mul"]

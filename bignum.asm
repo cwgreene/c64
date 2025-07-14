@@ -130,9 +130,10 @@ add_end:
 ;  0x34 *c
 mul:
     clc
-;    dbl = 0x30 <- a
+;    a   = 0x30 <- a
 ;    rem = 0x32 <- b
-;    acc = 0x34 -> c
+;    dbl = 0x34 <- b
+;    acc = 0x3r -> c
     ; set up is_zero to point to remainder
     lda $0032
     sta $0040
@@ -150,12 +151,14 @@ mul:
         .even:
             ; dbl += dbl
             ; $30 -> #10
-            ; jsr add dbl dbl -> dbl
-            lda $30 ; dbl
+            ; jsr add a dbl -> dbl
+            lda $30 ; a  
             ldx $31
-            sta $10 ; add.1 <- dbl
+            sta $10 ; add.1 <- a
             stx $11
 
+            lda $34 ; dbl
+            ldx $35
             sta $12 ; add.2 <- dbl
             stx $13
 
@@ -172,8 +175,8 @@ mul:
         .odd:
             ; acc += dbl
             ;jsr add (acc dbl) -> acc
-            lda $34 ; acc
-            ldx $35
+            lda $36 ; acc
+            ldx $37
             sta $10 ; add.1 <- acc
             stx $11
             sta $14 ; add.out <- acc
@@ -184,8 +187,8 @@ mul:
             stx $13
             jsr add
             
-            ; rem -= 1
-            lda #$0
+            ; rem -= 1 (remember, we're odd)
+            lda #$fe
             ldy #$1
             and (0x32),Y
             sta (0x32),Y
