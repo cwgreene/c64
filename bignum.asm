@@ -41,10 +41,13 @@ loadbig_b:
 ; Input:
 ; 0x40 *a
 is_zero:
+    ; get length
     ldy #$0
     lda ($40),Y
+
+    ; store length
     tax
-    iny
+    iny ; increment offset
     .is_zero_loop:
         lda ($40),Y
         ora #$0 ; not zero resets zero flag

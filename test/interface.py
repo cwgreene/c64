@@ -199,9 +199,9 @@ def create_environment():
                 "p:", bin(cpu.r.p), end=" ")
             print("|", mmu.read(mmu.read(0x30)+mmu.read(0x31)*256+cpu.r.y),
                        mmu.read(0x32)+mmu.read(mmu.read(0x33)*256+cpu.r.y),
-                       mmu.read(ma+1),
-                       mmu.read(mb+1),
-                       mmu.read(mc+1))
+                       f"{mmu.read(ma):02x}"+f"{mmu.read(ma+1):02x}"+f"{mmu.read(ma+2):02x}",
+                       f"{mmu.read(mb):02x}"+f"{mmu.read(mb+1):02x}"+f"{mmu.read(mb+2):02x}",
+                       f"{mmu.read(mc):02x}"+f"{mmu.read(mc+1):02x}"+f"{mmu.read(mc+2):02x}")
             cpu.step()
             steps += 1
         print("steps", steps)
