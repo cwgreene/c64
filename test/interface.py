@@ -40,6 +40,33 @@ def create_environment():
         mmu.write(0x801+i, by)
     cpu = CPU(mmu, syms["add"])
 
+    def call_copy(a, ma=0x1000, mb=0x1100):
+        cpu.r.pc = syms["copy_bignum"]
+        a = mknum(a)
+
+        for addr, m in [(0x60, ma), (0x62, mb)]:
+            mmu.write(addr, m % 256)
+            mmu.write(addr + 1, m >> 8)
+
+        mmu.write(ma, len(a))
+        for i, a_digit in enumerate(a):
+            mmu.write(ma + i + 1, a_digit)
+        
+        steps = 0
+        while cpu.r.pc != syms["copy_bignum_end"]:
+            op = mmu.read(cpu.r.pc)
+            # WARNING: Debug info will slow down all 1 byte tests.
+            #if cpu.r.pc in isyms:
+            #    print(isyms[cpu.r.pc],end=":")
+            #print(hex(cpu.r.pc), hex(op), cpu.ops[op].args[1].__name__, cpu.r.a, cpu.r.x, cpu.r.y, bin(cpu.r.p), end=" ")
+            #print("|", mmu.read(mmu.read(0x11)*256+cpu.r.y), mmu.read(mmu.read(0x13)*256+cpu.r.y))
+            cpu.step()
+            steps += 1
+        print("steps", steps)
+        # read out
+        length = mmu.read(mb)
+        return cpu, mmu
+
     def call_add(a,b, ma=0x1000, mb=0x1100, mc=0x1200):
         # set address
         cpu.r.pc = syms["add"]
@@ -183,10 +210,11 @@ def create_environment():
         print(c)
         return acc
 
-    return {"add":call_add, "long_shift_right": call_lsr, "mul": call_mul}
+    return {"add":call_add, "long_shift_right": call_lsr, "mul": call_mul, "copy_bignum": call_copy}
 
 env = create_environment()
 print(env)
 call_add = env["add"]
 call_long_shift_right = env["long_shift_right"]
 call_mul = env["mul"]
+call_bignum_copy = env["copy_bignum"]

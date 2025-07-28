@@ -10,6 +10,27 @@
     ldx #0                 ; Start index at 0
     jmp add
 
+; @func copy_bignum
+; Input:
+;  0x60 *src
+;  0x62 *dst
+copy_bignum:
+    ldy #$0
+    lda ($60),Y
+    tax
+    ; store length in dest
+    sta ($62),Y
+    iny
+
+    copy_bignum_loop:
+        lda ($60),Y
+        sta ($62),Y
+        iny
+        dex
+        bne copy_bignum_loop
+    copy_bignum_end:
+    rts
+
 ; we're going to use 0x1000 for a,b,c
 loadbig_a:
     ; TODO: use X to select page, Y to select offset in page
@@ -133,7 +154,7 @@ mul:
 ;    a   = 0x30 <- a
 ;    rem = 0x32 <- b
 ;    dbl = 0x34 <- b
-;    acc = 0x3r -> c
+;    acc = 0x36 -> c
     ; set up is_zero to point to remainder
     lda $0032
     sta $0040
