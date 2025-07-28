@@ -3,8 +3,9 @@ from .interface import call_add
 import random
 
 def test_one_byte_add():
-    for i in range(256):
-        for j in range(256):
+    for i in range(257):
+        for j in range(257):
+            print(i,j)
             assert call_add(i,j) == i+j
 
 def test_middle_carry():
@@ -22,6 +23,9 @@ def test_self_add():
     assert call_add(a,a,ma=0x1000,mb=0x1000,mc=0x1000) == a+a
 
 def test_large_add():
+    a = 34947
+    b = 13210248
+    assert call_add(a,b) == a+b
     random.seed(0x1337)
     for i in range(128):
         a = random.getrandbits(24)
