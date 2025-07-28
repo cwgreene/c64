@@ -153,8 +153,9 @@ mul:
     clc
 ;    a   = 0x30 <- a
 ;    rem = 0x32 <- b
-;    dbl = 0x34 <- b
-;    acc = 0x36 -> c
+;    dbl = 0x30 <- a
+;    acc = 0x34 -> c
+
     ; set up is_zero to point to remainder
     lda $0032
     sta $0040
@@ -172,14 +173,14 @@ mul:
         .even:
             ; dbl += dbl
             ; $30 -> #10
-            ; jsr add a dbl -> dbl
-            lda $30 ; a  
+            ; jsr add dbl dbl -> dbl
+            lda $30 ; dbl
             ldx $31
-            sta $10 ; add.1 <- a
+            sta $10 ; add.1 <- dbl
             stx $11
 
-            lda $34 ; dbl
-            ldx $35
+            lda $30 ; dbl
+            ldx $31
             sta $12 ; add.2 <- dbl
             stx $13
 
@@ -193,11 +194,12 @@ mul:
             sta $20 ; lsr.1 <- rem
             stx $21
             jsr long_shift_right
+            jmp .mul_loop
         .odd:
             ; acc += dbl
             ;jsr add (acc dbl) -> acc
-            lda $36 ; acc
-            ldx $37
+            lda $34 ; acc
+            ldx $35
             sta $10 ; add.1 <- acc
             stx $11
             sta $14 ; add.out <- acc
@@ -209,8 +211,9 @@ mul:
             jsr add
             
             ; rem -= 1 (remember, we're odd)
-            lda #$fe
-            ldy #$1
+            lda #$fe ; all ones except one bit
+            ldy #$1  ; lowest order byte
+                     ; note, since we're odd, this is valid. Even is handled above.
             and (0x32),Y
             sta (0x32),Y
         jmp .mul_loop

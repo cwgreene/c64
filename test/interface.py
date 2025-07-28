@@ -153,7 +153,7 @@ def create_environment():
         print(c)
         return acc
     
-    def call_mul(a,b, ma=0x1000, mb=0x1100, mdbl=0x1200, mc=0x1300):
+    def call_mul(a,b, ma=0x1000, mb=0x1100, mc=0x1200):
         # set address
         mul_start = 0x30
         cpu.r.pc = syms["mul"]
@@ -178,6 +178,9 @@ def create_environment():
         for i,(a_digit,b_digit) in enumerate(zip(a,b)):
             mmu.write(ma+i+1,a_digit)
             mmu.write(mb+i+1,b_digit)
+        
+        for i in range(128):
+            mmu.write(mc + i, 0)
 
         # simulate
         steps = 0
@@ -185,16 +188,20 @@ def create_environment():
             op = mmu.read(cpu.r.pc)
             # WARNING: Debug info will slow down all 1 byte tests.
             if cpu.r.pc in isyms:
-                print(isyms[cpu.r.pc],end=":")
+                print(isyms[cpu.r.pc],end=":\n")
+            #opsstr = " ".join([str(a.__name__ if hasattr(a,"__name__") else str(a)) for a in cpu.ops[op].args[1:]])
             print(hex(cpu.r.pc),
-                hex(op),
-                cpu.ops[op].args[1].__name__,
-                "A:", cpu.r.a,
-                "X:", cpu.r.x,
-                "Y:", cpu.r.y,
+               hex(op),
+               cpu.ops[op].args[1].__name__,
+               "A:", hex(cpu.r.a),
+                "X:", hex(cpu.r.x),
+                "Y:", hex(cpu.r.y),
                 "p:", bin(cpu.r.p), end=" ")
             print("|", mmu.read(mmu.read(0x30)+mmu.read(0x31)*256+cpu.r.y),
-                       mmu.read(0x32)+mmu.read(mmu.read(0x33)*256+cpu.r.y))
+                       mmu.read(0x32)+mmu.read(mmu.read(0x33)*256+cpu.r.y),
+                       mmu.read(ma+1),
+                       mmu.read(mb+1),
+                       mmu.read(mc+1))
             cpu.step()
             steps += 1
         print("steps", steps)
